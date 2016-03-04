@@ -1,4 +1,4 @@
-2846943bf54a67e0dece90f7a947201f *DESCRIPTION
+2b55644535988d556f142be5fc250369 *DESCRIPTION
 472904db5a93a07692b3fe24cabcf96c *LICENSE
 c30bda05919b9db74b7e1fa1bdf3fe4d *NAMESPACE
 c28c349e62ed8755ddd1e412ff5c5570 *R/sourcetools.R
@@ -15,9 +15,9 @@ c28c349e62ed8755ddd1e412ff5c5570 *R/sourcetools.R
 819297f5c9aa791e4a028cdc2a20774f *inst/include/sourcetools/cursor/cursor.h
 829b2cb18cd5aa7fa38963aa637029bf *inst/include/sourcetools/r/r.h
 f6e63eeea3a3536835a350b8bb2d9b31 *inst/include/sourcetools/read/read.h
-42da450c6a4e60e96b40a18b4593608a *inst/include/sourcetools/tokenization/Registration.h
-bb37bf7bfbd58256bd299dea7026dec4 *inst/include/sourcetools/tokenization/Token.h
-35d1249697515f9c8128883d3f37890b *inst/include/sourcetools/tokenization/Tokenizer.h
+88634ff31b2c6595d4fdb73ae4178f36 *inst/include/sourcetools/tokenization/Registration.h
+d77f581f1f7655087d01e2a1e6fe150c *inst/include/sourcetools/tokenization/Token.h
+e62614a3f155c5f32d32911aad3ae48e *inst/include/sourcetools/tokenization/Tokenizer.h
 9aff0bf21affa18892df139d6a392c9d *inst/include/sourcetools/tokenization/tokenization.h
 0fbff51d758fed92bedc9e15e70ecb4a *man/read.Rd
 d20335462b57d6ca288fa0a8fba3859e *man/tokenize-methods.Rd
@@ -26,4 +26,4 @@ d20335462b57d6ca288fa0a8fba3859e *man/tokenize-methods.Rd
 e72b585e60cb933f09c3a292da9af73e *src/Reader.cpp
 c5670da8a11b6d247484c69a5bd0ac33 *src/Tokenizer.cpp
 ec0b6648bdeb9329383d687c420f69cd *tests/testthat.R
-89a3441df842adf920ecb0f8960b9a36 *tests/testthat/test-tokenize.R
+2a5e53d9da9a8e16b0964d560d7ad5bd *tests/testthat/test-tokenize.R

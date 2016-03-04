@@ -1,7 +1,7 @@
 Package: sourcetools
 Type: Package
 Title: Tools for the Reading and Tokenization of R Code
-Version: 0.1.0
+Version: 0.1.1
 Author: Kevin Ushey
 Maintainer: Kevin Ushey <kevinushey@gmail.com>
 Description: Tools for the reading and tokenization of R code.
@@ -15,6 +15,6 @@ Suggests: testthat
 SystemRequirements: C++11
 RoxygenNote: 5.0.1
 NeedsCompilation: yes
-Packaged: 2016-03-02 19:26:57 UTC; kevin
+Packaged: 2016-03-04 01:20:36 UTC; kevinushey
 Repository: CRAN
-Date/Publication: 2016-03-03 05:50:11
+Date/Publication: 2016-03-04 08:25:38
