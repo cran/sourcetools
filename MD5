@@ -1,4 +1,4 @@
-2b55644535988d556f142be5fc250369 *DESCRIPTION
+5d46b20250f1f3eb2e647e60c1ea9cf2 *DESCRIPTION
 472904db5a93a07692b3fe24cabcf96c *LICENSE
 c30bda05919b9db74b7e1fa1bdf3fe4d *NAMESPACE
 c28c349e62ed8755ddd1e412ff5c5570 *R/sourcetools.R
@@ -26,4 +26,4 @@ d20335462b57d6ca288fa0a8fba3859e *man/tokenize-methods.Rd
 e72b585e60cb933f09c3a292da9af73e *src/Reader.cpp
 c5670da8a11b6d247484c69a5bd0ac33 *src/Tokenizer.cpp
 ec0b6648bdeb9329383d687c420f69cd *tests/testthat.R
-2a5e53d9da9a8e16b0964d560d7ad5bd *tests/testthat/test-tokenize.R
+9566b587bee20f94d3d68eed2259d8ff *tests/testthat/test-tokenize.R
