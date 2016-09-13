@@ -1,5 +1,5 @@
-#ifndef SOURCE_TOOLS_TOKENIZATION_TOKEN_H
-#define SOURCE_TOOLS_TOKENIZATION_TOKEN_H
+#ifndef SOURCETOOLS_TOKENIZATION_TOKEN_H
+#define SOURCETOOLS_TOKENIZATION_TOKEN_H
 
 #include <cstring>
 
@@ -8,6 +8,7 @@
 #include <map>
 #include <sstream>
 
+#include <sourcetools/core/core.h>
 #include <sourcetools/tokenization/Registration.h>
 #include <sourcetools/collection/Position.h>
 #include <sourcetools/cursor/TextCursor.h>
@@ -24,22 +25,25 @@ private:
 public:
 
   Token()
-    : begin_(nullptr),
-      end_(nullptr),
+    : begin_(NULL),
+      end_(NULL),
+      offset_(0),
       type_(INVALID)
   {
   }
 
   explicit Token(TokenType type)
-    : begin_(nullptr),
-      end_(nullptr),
+    : begin_(NULL),
+      end_(NULL),
+      offset_(0),
       type_(type)
   {
   }
 
   Token(const Position& position)
-    : begin_(nullptr),
-      end_(nullptr),
+    : begin_(NULL),
+      end_(NULL),
+      offset_(0),
       position_(position),
       type_(INVALID)
   {
@@ -48,6 +52,7 @@ public:
   Token(const TextCursor& cursor, TokenType type, std::size_t length)
     : begin_(cursor.begin() + cursor.offset()),
       end_(cursor.begin() + cursor.offset() + length),
+      offset_(cursor.offset()),
       position_(cursor.position()),
       type_(type)
   {
@@ -55,9 +60,26 @@ public:
 
   const char* begin() const { return begin_; }
   const char* end() const { return end_; }
+  std::size_t offset() const { return offset_; }
   std::size_t size() const { return end_ - begin_; }
 
-  std::string contents() const { return std::string(begin_, end_); }
+  std::string contents() const
+  {
+    return std::string(begin_, end_);
+  }
+
+  bool contentsEqual(const char* string)
+  {
+    return ::strcmp(begin_, string);
+  }
+
+  bool contentsEqual(const std::string& string) const
+  {
+    if (string.size() != size())
+      return false;
+
+    return ::memcmp(begin_, string.c_str(), size()) == 0;
+  }
 
   const Position& position() const { return position_; }
   std::size_t row() const { return position_.row; }
@@ -69,18 +91,11 @@ public:
 private:
   const char* begin_;
   const char* end_;
+  std::size_t offset_;
 
   Position position_;
   TokenType type_;
-
-  static const std::string& empty()
-  {
-    static std::string instance;
-    return instance;
-  }
 };
-
-inline namespace utils {
 
 inline bool isBracket(const Token& token)
 {
@@ -141,6 +156,26 @@ inline bool isNonUnaryOperator(const Token& token)
   return isOperator(token) && !isUnaryOperator(token);
 }
 
+inline bool isComparisonOperator(const Token& token)
+{
+  switch (token.type())
+  {
+  case OPERATOR_AND_SCALAR:
+  case OPERATOR_AND_VECTOR:
+  case OPERATOR_OR_SCALAR:
+  case OPERATOR_OR_VECTOR:
+  case OPERATOR_EQUAL:
+  case OPERATOR_NOT_EQUAL:
+  case OPERATOR_LESS:
+  case OPERATOR_LESS_OR_EQUAL:
+  case OPERATOR_GREATER:
+  case OPERATOR_GREATER_OR_EQUAL:
+    return true;
+  default:
+    return false;
+  }
+}
+
 inline bool isWhitespace(const Token& token)
 {
   return token.type() == WHITESPACE;
@@ -182,6 +217,22 @@ inline bool isCallOperator(const Token& token)
   return token.type() == LPAREN ||
          token.type() == LBRACKET ||
          token.type() == LDBRACKET;
+}
+
+inline bool isAssignmentOperator(const Token& token)
+{
+  switch (token.type())
+  {
+  case OPERATOR_ASSIGN_LEFT:
+  case OPERATOR_ASSIGN_LEFT_COLON:
+  case OPERATOR_ASSIGN_LEFT_EQUALS:
+  case OPERATOR_ASSIGN_LEFT_PARENT:
+  case OPERATOR_ASSIGN_RIGHT:
+  case OPERATOR_ASSIGN_RIGHT_PARENT:
+    return true;
+  default:
+    return false;
+  }
 }
 
 namespace detail {
@@ -316,9 +367,10 @@ inline bool parseUnicode(const char*& it, char*& output)
     ++clone;
   }
 
-  std::mbstate_t state {};
-  int bytes = ::wcrtomb(output, value, &state);
-  if (bytes == -1)
+  std::mbstate_t state;
+  ::memset(&state, 0, sizeof(state));
+  std::size_t bytes = ::wcrtomb(output, value, &state);
+  if (bytes == static_cast<std::size_t>(-1))
     return false;
 
   // Update iterator state
@@ -335,7 +387,7 @@ inline std::string stringValue(const char* begin, const char* end)
     return std::string();
 
   std::size_t n = end - begin;
-  char* buffer = new char[n + 1];
+  scoped_array<char> buffer(new char[n + 1]);
 
   const char* it = begin;
   char* output = buffer;
@@ -378,7 +430,6 @@ inline std::string stringValue(const char* begin, const char* end)
 
   // Construct the result string and return
   std::string result(buffer, output - buffer);
-  delete[] buffer;
   return result;
 }
 
@@ -396,7 +447,6 @@ inline std::string stringValue(const Token& token)
   }
 }
 
-} // namespace utils
 } // namespace tokens
 
 inline std::string toString(tokens::TokenType type)
@@ -440,9 +490,9 @@ inline std::string toString(const tokens::Token& token)
   char buff[1024];
   ::snprintf(buff,
              1024 - 1,
-             "[%4lu:%4lu]: %s\n",
-             (unsigned long) token.row(),
-             (unsigned long) token.column(),
+             "[%4lu:%4lu]: %s",
+             static_cast<unsigned long>(token.row()),
+             static_cast<unsigned long>(token.column()),
              contents.c_str());
   return buff;
 }
@@ -454,11 +504,16 @@ inline std::ostream& operator<<(std::ostream& os, const tokens::Token& token)
 
 inline std::ostream& operator<<(std::ostream& os, const std::vector<tokens::Token>& tokens)
 {
-  for (auto& token : tokens)
-    os << token << std::endl;
+  for (std::vector<tokens::Token>::const_iterator it = tokens.begin();
+       it != tokens.end();
+       ++it)
+  {
+    os << *it << std::endl;
+  }
+
   return os;
 }
 
 } // namespace sourcetools
 
-#endif /* SOURCE_TOOLS_TOKENIZATION_TOKEN_H */
+#endif /* SOURCETOOLS_TOKENIZATION_TOKEN_H */

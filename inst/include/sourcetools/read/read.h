@@ -1,26 +1,24 @@
-#ifndef SOURCE_TOOLS_READ_READ_H
-#define SOURCE_TOOLS_READ_READ_H
+#ifndef SOURCETOOLS_READ_READ_H
+#define SOURCETOOLS_READ_READ_H
 
-#include <fstream>
+#include <vector>
 #include <string>
-#include <cerrno>
+
+#include <sourcetools/read/MemoryMappedReader.h>
 
 namespace sourcetools {
 
 inline bool read(const std::string& absolutePath, std::string* pContent)
 {
-  std::ifstream ifs(absolutePath, std::ios::in | std::ios::binary);
-  if (ifs) {
-    ifs.seekg(0, std::ios::end);
-    pContent->resize(ifs.tellg());
-    ifs.seekg(0, std::ios::beg);
-    ifs.read(const_cast<char*>(pContent->c_str()), pContent->size());
-    ifs.close();
-    return true;
-  }
-  return false;
+  return detail::MemoryMappedReader::read(absolutePath.c_str(), pContent);
+}
+
+inline bool read_lines(const std::string& absolutePath,
+                       std::vector<std::string>* pLines)
+{
+  return detail::MemoryMappedReader::read_lines(absolutePath.c_str(), pLines);
 }
 
 }  // namespace sourcetools
 
-#endif /* SOURCE_TOOLS_READ_READ_H */
+#endif /* SOURCETOOLS_READ_READ_H */

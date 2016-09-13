@@ -1,49 +1,125 @@
-#ifndef SOURCE_TOOLS_UTILS_H
-#define SOURCE_TOOLS_UTILS_H
+#ifndef SOURCETOOLS_CORE_UTIL_H
+#define SOURCETOOLS_CORE_UTIL_H
 
 #include <string>
 #include <memory>
 #include <cctype>
+#include <cstdlib>
 
 namespace sourcetools {
-
-template <typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args)
-{
-  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
 namespace detail {
 
 class noncopyable
 {
 protected:
-  noncopyable() = default;
-  ~noncopyable() = default;
-  noncopyable(const noncopyable&) = delete;
-  noncopyable& operator=(const noncopyable&) = delete;
+  noncopyable() {}
+  ~noncopyable() {}
+
+private:
+  noncopyable(const noncopyable&);
+  noncopyable& operator=(const noncopyable&);
 };
 
 } // namespace detail
 typedef detail::noncopyable noncopyable;
 
+template <typename T>
+class scoped_ptr : noncopyable
+{
+public:
+  explicit scoped_ptr(T* pData) : pData_(pData) {}
+  T& operator*() const { return *pData_; }
+  T* operator->() const { return pData_; }
+  operator T*() const { return pData_; }
+  ~scoped_ptr() { delete pData_; }
+private:
+  T* pData_;
+};
+
+template <typename T>
+class scoped_array : noncopyable
+{
+public:
+  explicit scoped_array(T* pData) : pData_(pData) {}
+  T& operator*() const { return *pData_; }
+  T* operator->() const { return pData_; }
+  operator T*() const { return pData_; }
+  ~scoped_array() { delete[] pData_; }
+private:
+  T* pData_;
+};
+
 namespace utils {
+
+inline bool isWhitespace(char ch)
+{
+  return
+    ch == ' ' ||
+    ch == '\f' ||
+    ch == '\r' ||
+    ch == '\n' ||
+    ch == '\t' ||
+    ch == '\v';
+}
+
+template <typename T>
+inline bool countWhitespaceBytes(const char* data,
+                                 T* pBytes)
+{
+  T bytes = 0;
+  while (isWhitespace(*data)) {
+    ++data;
+    ++bytes;
+  }
+
+  *pBytes = bytes;
+  return bytes != 0;
+}
+
+inline bool isDigit(char ch)
+{
+  return
+    (ch >= '0' && ch <= '9');
+}
+
+inline bool isAlphabetic(char ch)
+{
+  return
+    (ch >= 'a' && ch <= 'z') ||
+    (ch >= 'A' && ch <= 'Z');
+}
+
+inline bool isAlphaNumeric(char ch)
+{
+  return
+    (ch >= 'a' && ch <= 'z') ||
+    (ch >= 'A' && ch <= 'Z') ||
+    (ch >= '0' && ch <= '9');
+}
+
+inline bool isHexDigit(char ch)
+{
+  return
+    (ch >= '0' && ch <= '9') ||
+    (ch >= 'a' && ch <= 'f') ||
+    (ch >= 'A' && ch <= 'F');
+}
 
 inline bool isValidForStartOfRSymbol(char ch)
 {
   return
-    std::isalpha(ch) ||
+    isAlphabetic(ch) ||
     ch == '.' ||
-    (unsigned char) ch >= 128;
+    ch < 0;
 }
 
 inline bool isValidForRSymbol(char ch)
 {
   return
-    std::isalnum(ch) ||
+    isAlphaNumeric(ch) ||
     ch == '.' ||
     ch == '_' ||
-    (unsigned char) ch >= 128;
+    ch < 0;
 }
 
 inline std::string escape(char ch)
@@ -63,4 +139,4 @@ inline std::string escape(char ch)
 } // namespace utils
 } // namespace sourcetools
 
-#endif  // SOURCE_TOOLS_UTILS_H
+#endif /* SOURCETOOLS_CORE_UTIL_H */

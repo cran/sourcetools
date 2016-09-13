@@ -1,5 +1,5 @@
-#ifndef SOURCE_TOOLS_CURSORS_TOKEN_CURSOR_H
-#define SOURCE_TOOLS_CURSORS_TOKEN_CURSOR_H
+#ifndef SOURCETOOLS_CURSOR_TOKEN_CURSOR_H
+#define SOURCETOOLS_CURSOR_TOKEN_CURSOR_H
 
 #include <algorithm>
 
@@ -139,43 +139,64 @@ public:
     return true;
   }
 
-  const Token& nextSignificantToken() const
+  const Token& nextSignificantToken(std::size_t times = 1) const
   {
     TokenCursor clone(*this);
-    clone.moveToNextSignificantToken();
+    for (std::size_t i = 0; i < times; ++i)
+      clone.moveToNextSignificantToken();
     return clone;
   }
 
-  const Token& previousSignificantToken() const
+  const Token& previousSignificantToken(std::size_t times = 1) const
   {
     TokenCursor clone(*this);
-    clone.moveToPreviousSignificantToken();
+    for (std::size_t i = 0; i < times; ++i)
+      clone.moveToPreviousSignificantToken();
     return clone;
   }
 
   bool moveToPosition(std::size_t row, std::size_t column)
   {
-    return moveToPosition({row, column});
+    return moveToPosition(Position(row, column));
   }
 
-  bool moveToPosition(const Position& position)
+  bool moveToPosition(const Position& target)
   {
-    return std::binary_search(
-      tokens_.begin(),
-      tokens_.end(),
-      Token(position),
-      [](const Token& lhs, const Token& rhs)
-      {
-        return lhs.position() < rhs.position();
-      }
-    );
+    if (UNLIKELY(n_ == 0))
+      return false;
+
+    if (UNLIKELY(tokens_[n_ - 1].position() <= target))
+    {
+      offset_ = n_ - 1;
+      return true;
+    }
+
+    std::size_t start  = 0;
+    std::size_t end    = n_;
+
+    std::size_t offset = 0;
+    while (true)
+    {
+      offset = (start + end) / 2;
+      const Position& current = tokens_[offset].position();
+
+      if (current == target || start == end)
+        break;
+      else if (current < target)
+        start = offset + 1;
+      else
+        end = offset - 1;
+    }
+
+    offset_ = offset;
+    return true;
   }
 
   template <typename F>
-  bool findFwd(F&& f)
+  bool findFwd(F f)
   {
     do {
-      if (std::forward<F>(f)(*this))
+      if (f(this))
         return true;
     } while (moveToNextToken());
 
@@ -183,19 +204,51 @@ public:
   }
 
   template <typename F>
-  bool findBwd(F&& f)
+  bool findBwd(F f)
   {
     do {
-      if (std::forward<F>(f)(*this))
+      if (f(this))
         return true;
     } while (moveToPreviousToken());
 
     return false;
   }
 
-  bool findComplementFwd()
+  bool findFwd(const char* contents)
+  {
+    return findFwd(std::string(contents, ::strlen(contents)));
+  }
+
+  bool findFwd(const std::string& contents)
+  {
+    do {
+      if (currentToken().contentsEqual(contents))
+        return true;
+    } while (moveToNextToken());
+
+    return false;
+  }
+
+  bool findBwd(const char* contents)
+  {
+    return findBwd(std::string(contents, ::strlen(contents)));
+  }
+
+  bool findBwd(const std::string& contents)
+  {
+    do {
+      if (currentToken().contentsEqual(contents))
+        return true;
+    } while (moveToPreviousToken());
+
+    return false;
+  }
+
+  bool fwdToMatchingBracket()
   {
     using namespace tokens;
+    if (!isLeftBracket(currentToken()))
+      return false;
 
     TokenType lhs = currentToken().type();
     TokenType rhs = complement(lhs);
@@ -212,9 +265,11 @@ public:
     return false;
   }
 
-  bool findComplementBwd()
+  bool bwdToMatchingBracket()
   {
     using namespace tokens;
+    if (!isRightBracket(currentToken()))
+      return false;
 
     TokenType lhs = currentToken().type();
     TokenType rhs = complement(lhs);
@@ -228,15 +283,6 @@ public:
       if (balance == 0) return true;
     }
 
-    return false;
-  }
-
-  bool findComplement()
-  {
-    if (tokens::isLeftBracket(*this))
-      return findComplementFwd();
-    else if (tokens::isRightBracket(*this))
-      return findComplementBwd();
     return false;
   }
 
@@ -271,4 +317,4 @@ inline std::string toString(const cursors::TokenCursor& cursor)
 
 } // namespace sourcetools
 
-#endif /* SOURCE_TOOLS_CURSORS_TOKEN_CURSOR_H */
+#endif /* SOURCETOOLS_CURSOR_TOKEN_CURSOR_H */

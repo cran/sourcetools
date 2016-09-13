@@ -1,5 +1,5 @@
-#ifndef SOURCE_TOOLS_TOKENIZATION_TOKENIZER_H
-#define SOURCE_TOOLS_TOKENIZATION_TOKENIZER_H
+#ifndef SOURCETOOLS_TOKENIZATION_TOKENIZER_H
+#define SOURCETOOLS_TOKENIZATION_TOKENIZER_H
 
 #include <sourcetools/core/core.h>
 #include <sourcetools/tokenization/Token.h>
@@ -20,18 +20,21 @@ private:
   typedef tokens::TokenType TokenType;
 
 private:
+
+  // Tokenization ----
+
   void consumeToken(TokenType type,
                     std::size_t length,
                     Token* pToken)
   {
-    *pToken = std::move(Token(cursor_, type, length));
+    *pToken = Token(cursor_, type, length);
     cursor_.advance(length);
   }
 
+  template <bool SkipEscaped, bool InvalidOnError>
   void consumeUntil(char ch,
                     TokenType type,
-                    Token* pToken,
-                    bool skipEscaped = false)
+                    Token* pToken)
   {
     TextCursor lookahead = cursor_;
 
@@ -42,7 +45,7 @@ private:
       lookahead.advance();
       ++distance;
 
-      if (skipEscaped && lookahead.peek() == '\\') {
+      if (SkipEscaped && lookahead.peek() == '\\') {
         lookahead.advance();
         ++distance;
         continue;
@@ -57,42 +60,37 @@ private:
     if (success) {
       consumeToken(type, distance + 1, pToken);
     } else {
-      consumeToken(tokens::INVALID, distance + 1, pToken);
+      consumeToken(
+        InvalidOnError ? tokens::INVALID : type,
+        distance,
+        pToken
+      );
     }
   }
 
   void consumeUserOperator(Token* pToken)
   {
-    consumeUntil('%', tokens::OPERATOR_USER, pToken);
+    consumeUntil<false, true>('%', tokens::OPERATOR_USER, pToken);
   }
 
   void consumeComment(Token* pToken)
   {
-    consumeUntil('\n', tokens::COMMENT, pToken);
+    consumeUntil<false, false>('\n', tokens::COMMENT, pToken);
   }
 
   void consumeQuotedSymbol(Token* pToken)
   {
-    consumeUntil('`', tokens::SYMBOL, pToken, true);
+    consumeUntil<true, true>('`', tokens::SYMBOL, pToken);
   }
 
   void consumeQString(Token* pToken)
   {
-    consumeUntil('\'', tokens::STRING, pToken, true);
+    consumeUntil<true, true>('\'', tokens::STRING, pToken);
   }
 
   void consumeQQString(Token* pToken)
   {
-    consumeUntil('"', tokens::STRING, pToken, true);
-  }
-
-  void consumeWhitespace(Token* pToken)
-  {
-    std::size_t distance = 1;
-    while (std::isspace(cursor_.peek(distance)))
-      ++distance;
-
-    consumeToken(tokens::WHITESPACE, distance, pToken);
+    consumeUntil<true, true>('"', tokens::STRING, pToken);
   }
 
   // NOTE: Don't tokenize '-' or '+' as part of number; instead
@@ -100,24 +98,16 @@ private:
   bool isStartOfNumber()
   {
     char ch = cursor_.peek();
-    if (std::isdigit(ch))
+    if (utils::isDigit(ch))
       return true;
     if (ch == '.')
-      return std::isdigit(cursor_.peek(1));
+      return utils::isDigit(cursor_.peek(1));
     return false;
   }
 
   bool isStartOfSymbol()
   {
     return utils::isValidForStartOfRSymbol(cursor_.peek());
-  }
-
-  bool isHexDigit(char c)
-  {
-    return
-      (c >= '0' && c <= '9') ||
-      (c >= 'A' && c <= 'F') ||
-      (c >= 'a' && c <= 'f');
   }
 
   bool consumeHexadecimalNumber(Token* pToken)
@@ -139,7 +129,7 @@ private:
     // hexadecimal characters (0-9, a-f, A-F). The number
     // can also end with an 'i' (for an imaginary number)
     // or with an 'L' for an integer.
-    if (!isHexDigit(cursor_.peek(distance)))
+    if (!utils::isHexDigit(cursor_.peek(distance)))
     {
       consumeToken(tokens::INVALID, distance, pToken);
       return false;
@@ -147,7 +137,7 @@ private:
 
     bool success = true;
     char peek = cursor_.peek(distance);
-    while (std::isalnum(peek) && peek != '\0') {
+    while (utils::isAlphaNumeric(peek) && peek != '\0') {
 
       // If we encounter an 'i' or an 'L', assume
       // that this ends the identifier.
@@ -157,7 +147,7 @@ private:
         break;
       }
 
-      if (!isHexDigit(peek))
+      if (!utils::isHexDigit(peek))
         success = false;
 
       ++distance;
@@ -181,7 +171,7 @@ private:
       return;
 
     // Consume digits
-    while (std::isdigit(cursor_.peek(distance)))
+    while (utils::isDigit(cursor_.peek(distance)))
       ++distance;
 
     // Consume a dot for decimals
@@ -189,7 +179,7 @@ private:
     // So is '100.'; ie, with a trailing decimal.
     if (cursor_.peek(distance) == '.') {
       ++distance;
-      while (std::isdigit(cursor_.peek(distance)))
+      while (utils::isDigit(cursor_.peek(distance)))
         ++distance;
     }
 
@@ -202,8 +192,8 @@ private:
         ++distance;
 
       // Parse another set of numbers following the E
-      success = std::isdigit(cursor_.peek(distance));
-      while (std::isdigit(cursor_.peek(distance)))
+      success = utils::isDigit(cursor_.peek(distance));
+      while (utils::isDigit(cursor_.peek(distance)))
         ++distance;
 
       // Consume '.' and following numbers. Note that this is
@@ -212,7 +202,7 @@ private:
       if (cursor_.peek(distance) == '.') {
         success = false;
         ++distance;
-        while (std::isdigit(cursor_.peek(distance)))
+        while (utils::isDigit(cursor_.peek(distance)))
           ++distance;
       }
     }
@@ -248,11 +238,12 @@ public:
   {
     if (cursor_ >= cursor_.end())
     {
-      *pToken = std::move(Token(tokens::END));
+      *pToken = Token(tokens::END);
       return false;
     }
 
     char ch = cursor_.peek();
+    int n = 0;
 
     // Block-related tokens
     if (ch == '{')
@@ -394,8 +385,8 @@ public:
       consumeToken(tokens::SEMI, 1, pToken);
 
     // Whitespace
-    else if (std::isspace(ch))
-      consumeWhitespace(pToken);
+    else if (utils::countWhitespaceBytes(cursor_, &n))
+      consumeToken(tokens::WHITESPACE, n, pToken);
 
     // Strings and symbols
     else if (ch == '\'')
@@ -440,20 +431,22 @@ public:
 
 private:
   TextCursor cursor_;
-  std::stack<TokenType, std::vector<TokenType>> tokenStack_;
+  std::stack<TokenType, std::vector<TokenType> > tokenStack_;
 };
 
 } // namespace tokenizer
 
 inline std::vector<tokens::Token> tokenize(const char* code, std::size_t n)
 {
-  std::vector<tokens::Token> tokens;
+  typedef tokenizer::Tokenizer Tokenizer;
+  typedef tokens::Token Token;
+
+  std::vector<Token> tokens;
   if (n == 0)
     return tokens;
 
-  tokenizer::Tokenizer tokenizer(code, n);
-
-  tokens::Token token;
+  Token token;
+  Tokenizer tokenizer(code, n);
   while (tokenizer.tokenize(&token))
     tokens.push_back(token);
 
@@ -467,4 +460,4 @@ inline std::vector<tokens::Token> tokenize(const std::string& code)
 
 } // namespace sourcetools
 
-#endif /* SOURCE_TOOLS_TOKENIZATION_TOKENIZER_H */
+#endif /* SOURCETOOLS_TOKENIZATION_TOKENIZER_H */

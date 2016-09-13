@@ -51,6 +51,11 @@ test_that("Numbers are tokenized correctly", {
 
 })
 
+test_that("The tokenizer accepts UTF-8 symbols", {
+  expect_true(nrow(tokenize_string("å√∂")) == 1)
+  expect_true(nrow(tokenize_string("¡™£¢∞§¶•ªº≠åß∂ƒ©˙∆˚¬…æΩ≈ç√∫˜µ≤≥÷")) == 1)
+})
+
 test_that("The tokenizer works correctly", {
 
   # TODO: Should newlines be absorbed as part of the comment string?
@@ -125,6 +130,21 @@ test_that("keywords are tokenized as keywords", {
 
   types <- unlist(lapply(tokens, `[[`, "type"))
   expect_true(all(types == "keyword"))
+})
+
+test_that("comments without a trailing newline are tokenized", {
+  tokens <- tokenize_string("# abc")
+  expect_identical(tokens$type, "comment")
+})
+
+test_that("tokenization errors handled correctly", {
+  # previously, these reported an error where a NUL
+  # byte was accidentally included as part of the
+  # token value
+  tokenize_string("`abc")
+  tokenize_string("'abc")
+  tokenize_string("\"abc")
+  tokenize_string("%abc")
 })
 
 test_that("files in packages are tokenized without errors", {

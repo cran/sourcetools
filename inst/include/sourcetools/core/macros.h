@@ -1,5 +1,5 @@
-#ifndef SOURCE_TOOLS_MACROS_H
-#define SOURCE_TOOLS_MACROS_H
+#ifndef SOURCETOOLS_CORE_MACROS_H
+#define SOURCETOOLS_CORE_MACROS_H
 
 #include <string>
 #include <cstdio>
@@ -66,4 +66,4 @@ inline std::string debugPosition(const char* filePath, int line)
 
 #endif
 
-#endif  // SOURCE_TOOLS_MACROS_H
+#endif /* SOURCETOOLS_CORE_MACROS_H */
