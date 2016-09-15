@@ -2,6 +2,7 @@
 #define SOURCETOOLS_TOKENIZATION_TOKEN_H
 
 #include <cstring>
+#include <cstdio>
 
 #include <vector>
 #include <string>
@@ -70,7 +71,7 @@ public:
 
   bool contentsEqual(const char* string)
   {
-    return ::strcmp(begin_, string);
+    return std::strcmp(begin_, string);
   }
 
   bool contentsEqual(const std::string& string) const
@@ -78,7 +79,7 @@ public:
     if (string.size() != size())
       return false;
 
-    return ::memcmp(begin_, string.c_str(), size()) == 0;
+    return std::memcmp(begin_, string.c_str(), size()) == 0;
   }
 
   const Position& position() const { return position_; }
@@ -368,8 +369,8 @@ inline bool parseUnicode(const char*& it, char*& output)
   }
 
   std::mbstate_t state;
-  ::memset(&state, 0, sizeof(state));
-  std::size_t bytes = ::wcrtomb(output, value, &state);
+  std::memset(&state, 0, sizeof(state));
+  std::size_t bytes = std::wcrtomb(output, value, &state);
   if (bytes == static_cast<std::size_t>(-1))
     return false;
 
@@ -491,11 +492,11 @@ inline std::string toString(const tokens::Token& token)
   if (contents.size() > N / 2)
     contents = contents.substr(0, N / 2);
   char buff[N];
-  ::sprintf(buff,
-            "[%4lu:%4lu]: %s",
-            static_cast<unsigned long>(token.row()),
-            static_cast<unsigned long>(token.column()),
-            contents.c_str());
+  std::sprintf(buff,
+               "[%4lu:%4lu]: %s",
+               static_cast<unsigned long>(token.row()),
+               static_cast<unsigned long>(token.column()),
+               contents.c_str());
   return buff;
 }
 
