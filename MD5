@@ -1,9 +1,9 @@
-f46bb7c8e02f465638a7a3f70bcbb76e *DESCRIPTION
+14d070e10ee3e1dd88ca1f008e63ba05 *DESCRIPTION
 472904db5a93a07692b3fe24cabcf96c *LICENSE
-d904b6ab89c989c9148d4efba103d02d *NAMESPACE
+ce97ebaad581d3ce2c897cdcffa1d66c *NAMESPACE
 f236d8fcec934db9ad39b317d5308bd7 *NEWS.md
-1782b737100f74e11e90c8c45db0d509 *R/sourcetools.R
-b09019840734b467d388e34905ebc46c *R/util.R
+37e5f77d6f49acabdf3daef30abe34f7 *R/sourcetools.R
+d33c3c2ece7b73587126bae7e012a549 *R/util.R
 d82a27087d6f3fac9d06978a31640aed *README.md
 c5215eb66349006d73ad7e65ce54046b *inst/include/sourcetools.h
 f071c0148a4629ea8150b63d2627cf0c *inst/include/sourcetools/collection/Position.h
@@ -29,7 +29,7 @@ da17972b93e9b4e91554f705b4cda985 *inst/include/sourcetools/r/r.h
 e0147869348d196193c13e89762670f0 *inst/include/sourcetools/read/posix/MemoryMappedConnection.h
 44abbae26e9ab704c92a9ce6c98ba33a *inst/include/sourcetools/read/read.h
 e77d3eb6a47db7e6d1e65f59eb3ab2c5 *inst/include/sourcetools/read/windows/FileConnection.h
-f4b06a29aca570063567f8a765609056 *inst/include/sourcetools/read/windows/MemoryMappedConnection.h
+35b83b8a537f7c447410e3c5e6616cef *inst/include/sourcetools/read/windows/MemoryMappedConnection.h
 b80180f53ca809b9ba6d4e7df6316e0b *inst/include/sourcetools/tests/testthat.h
 c6afafc697b747111348dabb88d9fb4a *inst/include/sourcetools/tokenization/Registration.h
 9ab2cf85d30171f4744d21d10c6cd532 *inst/include/sourcetools/tokenization/Token.h
@@ -42,6 +42,7 @@ a94108446e930c7c488c695e1618f049 *man/tokenize-methods.Rd
 3f03da795dd26373156bddc78d41e95d *src/Makevars.win
 43927b22e2812e5ba35419390a7933ae *src/Reader.cpp
 78946eee022f534743af918d651dd244 *src/Tokenizer.cpp
+f4bd98cee0ca584880a0cac98f48d527 *src/sourcetools-init.c
 175dc27564828d1abeb87bc004d02266 *tests/testthat.R
 b6ba9001993894a2085c981a6c58018d *tests/testthat/helper-utf8.R
 0e31fb15ea8b66d310162f60c434ed7d *tests/testthat/test-read.R
