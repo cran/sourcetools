@@ -1,7 +1,7 @@
-6de977696a44f556eabaaec5bcbbac51 *DESCRIPTION
+86207822a968a775ff4cedd889af030d *DESCRIPTION
 472904db5a93a07692b3fe24cabcf96c *LICENSE
 ce97ebaad581d3ce2c897cdcffa1d66c *NAMESPACE
-90b92a7f767af179e20f200b0a3f6cf5 *NEWS.md
+862b3883b096fbf3164ed17648c07858 *NEWS.md
 37e5f77d6f49acabdf3daef30abe34f7 *R/sourcetools.R
 d33c3c2ece7b73587126bae7e012a549 *R/util.R
 d82a27087d6f3fac9d06978a31640aed *README.md
@@ -10,7 +10,7 @@ f071c0148a4629ea8150b63d2627cf0c *inst/include/sourcetools/collection/Position.h
 019b4182b5d6b9700562f8d3b90ac1f4 *inst/include/sourcetools/collection/Range.h
 d11b4138653828a197304b1cb692c614 *inst/include/sourcetools/collection/collection.h
 d77f935ab3b7da52405a501f2404d18e *inst/include/sourcetools/core/core.h
-9ad041bb1ce4251ab7afccee1ac6de3d *inst/include/sourcetools/core/macros.h
+dbd377c00217cdca9ec6bc7e0953f06d *inst/include/sourcetools/core/macros.h
 a75b84b3f91f4ab540aac42267e860ad *inst/include/sourcetools/core/util.h
 353bc7e4e2bf9b62e301243a8a631e52 *inst/include/sourcetools/cursor/TextCursor.h
 81b2ef5fe49d6e2822e8703ede20414c *inst/include/sourcetools/cursor/TokenCursor.h
@@ -32,7 +32,7 @@ e77d3eb6a47db7e6d1e65f59eb3ab2c5 *inst/include/sourcetools/read/windows/FileConn
 35b83b8a537f7c447410e3c5e6616cef *inst/include/sourcetools/read/windows/MemoryMappedConnection.h
 b80180f53ca809b9ba6d4e7df6316e0b *inst/include/sourcetools/tests/testthat.h
 c6afafc697b747111348dabb88d9fb4a *inst/include/sourcetools/tokenization/Registration.h
-9ab2cf85d30171f4744d21d10c6cd532 *inst/include/sourcetools/tokenization/Token.h
+dcc7425aca1b6c29ce2bbea16b61e045 *inst/include/sourcetools/tokenization/Token.h
 6599c5daf2f3e59861153982cc00efef *inst/include/sourcetools/tokenization/Tokenizer.h
 00c91c6e20bc534fa3a689c79770f46c *inst/include/sourcetools/tokenization/tokenization.h
 1491ededa24449d40554757c96bebaf0 *inst/include/sourcetools/utf8/utf8.h
